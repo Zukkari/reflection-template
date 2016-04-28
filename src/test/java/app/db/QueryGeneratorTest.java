@@ -121,7 +121,7 @@ public class QueryGeneratorTest {
     for (int i = 0; i < columns.size(); i++) {
       if (columnName.equals(columns.get(i))) {
         if (!value.equals(q.getParams().get(i))) {
-          throw new IllegalStateException(String.format(
+          throw new AssertionError(String.format(
               "parameter for column %s doesn't match at position %d. expected %s, found %s",
               columnName, i, value, q.getParams().get(i)));
         }
@@ -129,7 +129,7 @@ public class QueryGeneratorTest {
       }
     }
     if (!found) {
-      throw new IllegalStateException("didn't find column " + columnName);
+      throw new AssertionError("didn't find column " + columnName);
     }
   }
 }

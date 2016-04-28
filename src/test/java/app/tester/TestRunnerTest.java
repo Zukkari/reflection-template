@@ -75,12 +75,12 @@ public class TestRunnerTest {
 
   private static void assertPassed(List<TestResult> results, String testName) {
     assertEquals("results contain " + testName, 1, ofName(results, testName).count());
-    assertTrue(testName + " passed", ofName(results, testName).allMatch(TestResult::isPassed));
+    assertTrue(testName + " passes", ofName(results, testName).allMatch(TestResult::isPassed));
   }
 
   private static void assertFailed(List<TestResult> results, String testName) {
     assertEquals("results contain " + testName, 1, ofName(results, testName).count());
-    assertFalse(testName + " passed", ofName(results, testName).anyMatch(TestResult::isPassed));
+    assertFalse(testName + " fails", ofName(results, testName).anyMatch(TestResult::isPassed));
   }
 
   private void assertDuration(List<TestResult> results, String testName, long duration) {

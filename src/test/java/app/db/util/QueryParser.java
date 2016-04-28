@@ -14,7 +14,7 @@ public class QueryParser {
 
   public static ParsedQuery parse(Query query) {
     if (query == null)
-      throw new IllegalStateException("generator returned null instead of Query");
+      throw new AssertionError("Query must not be null");
 
     validateSyntax(query);
 
@@ -43,14 +43,14 @@ public class QueryParser {
 
     Matcher matcher = insert.matcher(query.getQuery());
     if (!matcher.matches()) {
-      throw new IllegalStateException("query doesn't match pattern 'INSERT INTO ... (...) VALUES (...);'");
+      throw new AssertionError("query doesn't match pattern 'INSERT INTO ... (...) VALUES (...);'");
     }
 
     List<String> columns = getItems(matcher.group(2));
     List<String> placeholders = getItems(matcher.group(3));
     if (columns.size() != placeholders.size()) {
-      throw new IllegalStateException(String.format(
-          "column count != placeholder count; columns=%s, placeholders=%s",
+      throw new AssertionError(String.format(
+          "column count should equals placeholder count; found columns=%s, placeholders=%s",
           columns, placeholders));
     }
   }
@@ -61,18 +61,15 @@ public class QueryParser {
 
   private static String findToken(StringTokenizer tok, String description) {
     if (!tok.hasMoreTokens()) {
-      throw new IllegalStateException(String.format("expected %s but found nothing", description));
+      throw new AssertionError(String.format("expected '%s' but found nothing", description));
     }
     return tok.nextToken();
   }
 
   private static void expect(StringTokenizer tok, String expected) {
-    if (!tok.hasMoreTokens()) {
-      throw new IllegalStateException(String.format("expected '%s' but found nothing", expected));
-    }
-    String next = tok.nextToken();
+    String next = findToken(tok, expected);
     if (!expected.equalsIgnoreCase(next)) {
-      throw new IllegalStateException(String.format("expected '%s' but found '%s'", expected, next));
+      throw new AssertionError(String.format("expected '%s' but found '%s'", expected, next));
     }
   }
 }
