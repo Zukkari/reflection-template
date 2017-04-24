@@ -20,6 +20,8 @@ public class QueryGenerator {
    * @return a valid parametric SQL insert statement and its parameters
    */
   public Query generateInsertStatement(Object entity) throws ReflectiveOperationException {
+    // use reflection to get the fields, field values and field annotations
+    // run the tests to see what's missing
     return null; // TODO implement
   }
 }
