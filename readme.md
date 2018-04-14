@@ -1,9 +1,5 @@
 # Java Reflection API
 
-*There is no such things as "good" or "bad". There are just
-things. The rest is caused by our values, shifting from day
-to day as they will.*
-
 Reflection allows the program to inspect objects and classes at **runtime**.
 Given any object, the reflection API allows the following:
 
@@ -29,7 +25,7 @@ There are three main options for getting the Class object:
 
  * `Class<?> c = MyKlass.class;`
  * `Class<?> c = myObject.getClass();`
- * `Class<?> c = Class.forName("my.package.MyKlass");`
+ * `Class<?> c = Class.forName("my.package.MyClass");`
 
 ## Useful tools in the reflection API
 
@@ -46,17 +42,17 @@ There are three main options for getting the Class object:
 
  * `Class<?>[] getParameterTypes()`
  * `Annotation[] getDeclaredAnnotations()`
- * `void setAccessible(boolean flag)`
  * `T newInstance(Object... initargs)`
+ * `void setAccessible(boolean flag)`
 
 ### java.lang.reflect.Field
 
  * `String getName()`
  * `Class<?> getType()`
  * `Annotation[] getDeclaredAnnotations()`
- * `void setAccessible(boolean flag)`
  * `Object get(Object obj)`
  * `void set(Object obj, Object value)`
+ * `void setAccessible(boolean flag)`
 
 ### java.lang.reflect.Method
 
@@ -64,8 +60,8 @@ There are three main options for getting the Class object:
  * `Class<?>[] getParameterTypes()`
  * `Class<?> getReturnType()`
  * `Annotation[] getDeclaredAnnotations()`
- * `void setAccessible(boolean flag)`
  * `Object invoke(Object obj, Object... args)`
+ * `void setAccessible(boolean flag)`
 
 ## Examples
 
@@ -82,7 +78,21 @@ for (Method method : Test.class.getDeclaredMethods()) {
 // create a Test object
 // set the value of its field someString to 'newValue'
 Test test = new Test();
-test.getClass().getDeclaredField("someString").set(test, "newValue");
+Test.class.getDeclaredField("someString").set(test, "newValue");
+```
+
+### Invoking a method
+```
+class Sample {
+  public String hello() {
+    return "Hello world!";
+  }
+}
+
+Sample s = new Sample();
+Method hello = Sample.class.getDeclaredMethod("hello");
+Object result = hello.invoke(s);
+System.out.println(result); // Hello world!
 ```
 
 ## Accessing public and private members
@@ -104,24 +114,28 @@ the JVM can be configured to disallow accessing private members for security rea
 
 Annotations are metadata that can be attached to classes, fields, methods, method parameters, etc.
 Annotations on their own don't do anything - they just exist and hold some data.
-However, a program can inspect classes at runtime to find the annotations and read their data.
+However, a program can inspect classes at runtime to find the annotations, read the data and made decisions based on it.
 
-### Reading annotations
+### Reading an annotation
 ```
-// annotated class
-MyAnnotation annotation = target.getClass().getAnnotation(MyAnnotation.class);
+@MyAnnotation("classValue")
+class Sample {
 
-// annotated field
-Field myField = target.getClass().getDeclaredField("myField");
-MyAnnotation annotation = myField.getAnnotation(MyAnnotation.class);
+  @MyAnnotation("fieldValue")
+  Object myField;
+}
 
-// @MyAnnotation("someValue")
-String theValue = annotation.value();
+MyAnnotation classAnnotation = Sample.class.getAnnotation(MyAnnotation.class);
+System.out.println(classAnnotation.value()); // classValue
+
+Field myField = Sample.class.getDeclaredField("myField");
+MyAnnotation fieldAnnotation = myField.getAnnotation(MyAnnotation.class);
+System.out.println(fieldAnnotation.value()); // fieldValue
 ```
 
 # Practice tasks
 
-Make the following tests pass by implementing the missing functionality.
+Implement the missing functionality.
 
- * app.db.QueryGeneratorTest
- * app.tester.TestRunnerTest
+ * change app.db.QueryGenerator so that tests in QueryGeneratorTest pass
+ * change app.tester.TestRunner so that tests in TestRunnerTest pass

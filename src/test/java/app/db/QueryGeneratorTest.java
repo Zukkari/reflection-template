@@ -22,14 +22,14 @@ import static org.junit.Assert.assertEquals;
 public class QueryGeneratorTest {
 
   @Test
-  public void testClassWithNoFieldsIsValid() throws Exception {
+  public void generatesValidQueryWhenObjectHasNoFields() throws Exception {
     ParsedQuery q = generateAndParse(new Empty());
     assertEquals("table name", Empty.class.getSimpleName(), q.getTable());
     assertEquals("column count", 0, q.getColumns().size());
   }
 
   @Test
-  public void testPublicFieldsIncluded() throws Exception {
+  public void hasColumnsForAllPublicFields() throws Exception {
     ParsedQuery q = generateAndParse(new PublicFields());
     assertEquals("table name", PublicFields.class.getSimpleName(), q.getTable());
     assertEquals("column count", 2, q.getColumns().size());
@@ -38,7 +38,7 @@ public class QueryGeneratorTest {
   }
 
   @Test
-  public void testPrivateFieldsIncluded() throws Exception {
+  public void hasColumnsForAllPrivateFields() throws Exception {
     ParsedQuery q = generateAndParse(new PrivateFields());
     assertEquals("table name", PrivateFields.class.getSimpleName(), q.getTable());
     assertEquals("column count", 2, q.getColumns().size());
@@ -47,7 +47,7 @@ public class QueryGeneratorTest {
   }
 
   @Test
-  public void testMixedTypesAccepted() throws Exception {
+  public void acceptsFieldsWithDifferentTypes() throws Exception {
     ParsedQuery q = generateAndParse(new MixedFieldTypes());
     assertEquals("table name", MixedFieldTypes.class.getSimpleName(), q.getTable());
     assertEquals("column count", 3, q.getColumns().size());
@@ -57,7 +57,7 @@ public class QueryGeneratorTest {
   }
 
   @Test
-  public void testPublicStaticFieldsIgnored() throws Exception {
+  public void skipsGeneratingColumnsForStaticFields() throws Exception {
     ParsedQuery q = generateAndParse(new PublicStaticMixed());
     assertEquals("table name", PublicStaticMixed.class.getSimpleName(), q.getTable());
     assertEquals("column count", 2, q.getColumns().size());
@@ -66,7 +66,7 @@ public class QueryGeneratorTest {
   }
 
   @Test
-  public void testPublicFieldsInherited() throws Exception {
+  public void hasColumnsForPublicFieldsInSuperclass() throws Exception {
     ParsedQuery q = generateAndParse(new PublicInheritedFields());
     assertEquals("table name", PublicInheritedFields.class.getSimpleName(), q.getTable());
     assertEquals("column count", 3, q.getColumns().size());
@@ -76,7 +76,7 @@ public class QueryGeneratorTest {
   }
 
   @Test
-  public void testPrivateFieldsInherited() throws Exception {
+  public void hasColumnsForPrivateFieldsInSuperclass() throws Exception {
     ParsedQuery q = generateAndParse(new PrivateInheritedFields());
     assertEquals("table name", PrivateInheritedFields.class.getSimpleName(), q.getTable());
     assertEquals("column count", 3, q.getColumns().size());
@@ -86,7 +86,7 @@ public class QueryGeneratorTest {
   }
 
   @Test
-  public void testTableAnnotationReplacesSimpleName() throws Exception {
+  public void prefersTableAnnotationOverSimpleName() throws Exception {
     ParsedQuery q = generateAndParse(new TableEntity());
     assertEquals("table name", "AnnotationName", q.getTable());
     assertEquals("column count", 1, q.getColumns().size());
@@ -94,7 +94,7 @@ public class QueryGeneratorTest {
   }
 
   @Test
-  public void testTableAnnotationIgnoredOnSuperclass() throws Exception {
+  public void ignoresTableAnnotationFromSuperclass() throws Exception {
     ParsedQuery q = generateAndParse(new SuperTableEntity());
     assertEquals("table name", SuperTableEntity.class.getSimpleName(), q.getTable());
     assertEquals("column count", 2, q.getColumns().size());
@@ -103,7 +103,7 @@ public class QueryGeneratorTest {
   }
 
   @Test
-  public void testColumnAnnotationReplacesFieldName() throws Exception {
+  public void prefersColumnAnnotationOverFieldName() throws Exception {
     ParsedQuery q = generateAndParse(new ColumnEntity());
     assertEquals("table name", ColumnEntity.class.getSimpleName(), q.getTable());
     assertEquals("column count", 2, q.getColumns().size());

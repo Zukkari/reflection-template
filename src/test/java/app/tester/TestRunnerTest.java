@@ -7,6 +7,7 @@ import app.tester.samples.TeardownSuite;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
@@ -16,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 public class TestRunnerTest {
 
   @Test
-  public void testAllAndOnlyTestMethodsAreCalledOnce() throws Exception {
+  public void callsAllTestMethodsOnceAndSkipsNonTests() throws Exception {
     InheritanceSuite suite = new InheritanceSuite();
     new TestRunner().runTests(suite);
     assertEquals("testFirst called", 1, suite.testFirstCount);
@@ -28,7 +29,7 @@ public class TestRunnerTest {
   }
 
   @Test
-  public void testCorrectResultReported() throws Exception {
+  public void reportsCorrectResults() throws Exception {
     ExceptionSuite suite = new ExceptionSuite();
     List<TestResult> results = new TestRunner().runTests(suite);
     assertEquals("test results count", 5, results.size());
@@ -40,7 +41,7 @@ public class TestRunnerTest {
   }
 
   @Test
-  public void testCorrectDurationsReported() throws Exception {
+  public void reportsCorrectDurations() throws Exception {
     ExceptionSuite suite = new ExceptionSuite();
     List<TestResult> results = new TestRunner().runTests(suite);
     assertEquals("test results count", 5, results.size());
@@ -52,7 +53,7 @@ public class TestRunnerTest {
   }
 
   @Test
-  public void testSetupWithInheritance() throws Exception {
+  public void findsSetupMethodsFromSuperclass() throws Exception {
     SetupSuite suite = new SetupSuite();
     new TestRunner().runTests(suite);
     assertEquals("all test methods called", 2, suite.testCycle);
@@ -63,14 +64,14 @@ public class TestRunnerTest {
   }
 
   @Test
-  public void testTeardownWithInheritance() throws Exception {
+  public void findsTeardownMethodsFromSuperclass() throws Exception {
     TeardownSuite suite = new TeardownSuite();
     new TestRunner().runTests(suite);
     assertEquals("all test methods called", 2, suite.testCycle);
     assertEquals("@Teardown called after each test: after1", suite.testCycle, suite.after1);
     assertEquals("@Teardown called after each test: after2", suite.testCycle, suite.after2);
     if (suite.failure != null)
-      throw suite.failure;
+      throw new ExecutionException(suite.failure);
   }
 
   private static void assertPassed(List<TestResult> results, String testName) {

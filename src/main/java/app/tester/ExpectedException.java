@@ -6,7 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Denotes that the test method must only be considered successful if it throws the specified exception.
+ * Denotes that the test method must only be considered successful if
+ * it throws the specified exception.
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
