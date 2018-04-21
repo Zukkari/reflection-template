@@ -4,10 +4,7 @@ import app.db.samples.ColumnEntity;
 import app.db.samples.Empty;
 import app.db.samples.MixedFieldTypes;
 import app.db.samples.PrivateFields;
-import app.db.samples.PrivateInheritedFields;
 import app.db.samples.PublicFields;
-import app.db.samples.PublicInheritedFields;
-import app.db.samples.SuperTableEntity;
 import app.db.samples.TableEntity;
 import app.db.util.ParsedQuery;
 import app.db.util.QueryParser;
@@ -56,40 +53,11 @@ public class QueryGeneratorTest {
   }
 
   @Test
-  public void hasColumnsForPublicFieldsInSuperclass() throws Exception {
-    ParsedQuery q = generateAndParse(new PublicInheritedFields());
-    assertEquals("table name", PublicInheritedFields.class.getSimpleName(), q.getTable());
-    assertEquals("column count", 3, q.getColumns().size());
-    assertContains(q, "field1", "field1value");
-    assertContains(q, "field2", "field2value");
-    assertContains(q, "field3", "field3value");
-  }
-
-  @Test
-  public void hasColumnsForPrivateFieldsInSuperclass() throws Exception {
-    ParsedQuery q = generateAndParse(new PrivateInheritedFields());
-    assertEquals("table name", PrivateInheritedFields.class.getSimpleName(), q.getTable());
-    assertEquals("column count", 3, q.getColumns().size());
-    assertContains(q, "pfield1", "pfield1value");
-    assertContains(q, "pfield2", "pfield2value");
-    assertContains(q, "pfield3", "pfield3value");
-  }
-
-  @Test
   public void prefersTableAnnotationOverSimpleName() throws Exception {
     ParsedQuery q = generateAndParse(new TableEntity());
     assertEquals("table name", "AnnotationName", q.getTable());
     assertEquals("column count", 1, q.getColumns().size());
     assertContains(q, "field1", "field1value");
-  }
-
-  @Test
-  public void ignoresTableAnnotationFromSuperclass() throws Exception {
-    ParsedQuery q = generateAndParse(new SuperTableEntity());
-    assertEquals("table name", SuperTableEntity.class.getSimpleName(), q.getTable());
-    assertEquals("column count", 2, q.getColumns().size());
-    assertContains(q, "field1", "field1value");
-    assertContains(q, "field2", "field2value");
   }
 
   @Test
