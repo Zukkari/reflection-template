@@ -33,35 +33,24 @@ There are three main options for getting the Class object:
 
  * `String getName()`
  * `Class<?> getSuperclass()`
- * `Constructor<?>[] getDeclaredConstructors()`
  * `Field[] getDeclaredFields()`
  * `Method[] getDeclaredMethods()`
- * `Annotation[] getDeclaredAnnotations()`
-
-### java.lang.reflect.Constructor\<T\>
-
- * `Class<?>[] getParameterTypes()`
- * `Annotation[] getDeclaredAnnotations()`
- * `T newInstance(Object... initargs)`
- * `void setAccessible(boolean flag)`
+ * `T getAnnotation(Class<T> annotationType)`
 
 ### java.lang.reflect.Field
 
  * `String getName()`
- * `Class<?> getType()`
- * `Annotation[] getDeclaredAnnotations()`
  * `Object get(Object obj)`
  * `void set(Object obj, Object value)`
  * `void setAccessible(boolean flag)`
+ * `T getAnnotation(Class<T> annotationType)`
 
 ### java.lang.reflect.Method
 
  * `String getName()`
- * `Class<?>[] getParameterTypes()`
- * `Class<?> getReturnType()`
- * `Annotation[] getDeclaredAnnotations()`
  * `Object invoke(Object obj, Object... args)`
  * `void setAccessible(boolean flag)`
+ * `T getAnnotation(Class<T> annotationType)`
 
 ## Examples
 
@@ -116,21 +105,46 @@ Annotations are metadata that can be attached to classes, fields, methods, metho
 Annotations on their own don't do anything - they just exist and hold some data.
 However, a program can inspect classes at runtime to find the annotations, read the data and made decisions based on it.
 
-### Reading an annotation
+### Creating and using annotations
+
+An annotation declaration is similar to that of an interface.
+
 ```
-@MyAnnotation("classValue")
-class Sample {
-
-  @MyAnnotation("fieldValue")
-  Object myField;
+@Retention(RetentionPolicy.RUNTIME)
+@interface Range {
+  double min();
+  double max();
 }
+```
 
-MyAnnotation classAnnotation = Sample.class.getAnnotation(MyAnnotation.class);
-System.out.println(classAnnotation.value()); // classValue
+The annotation can then be added to classes/fields/methods etc.
 
-Field myField = Sample.class.getDeclaredField("myField");
-MyAnnotation fieldAnnotation = myField.getAnnotation(MyAnnotation.class);
-System.out.println(fieldAnnotation.value()); // fieldValue
+```
+class Ticket {
+
+  @Range(min = 0.99, max = 15.99)
+  public double price;
+}
+```
+
+A running program can inspect any class for annotations and make decisions based on them.
+
+```
+class Validator {
+
+  void validate(Object obj) throws Exception {
+    for (Field field : obj.getClass().getDeclaredFields()) {
+      Range rangeValidator = field.getAnnotation(Range.class);
+      if (rangeValidator != null) {
+        double fieldValue = field.getDouble(obj);
+        if (fieldValue < rangeValidator.min())
+          throw new RuntimeException(field.getName() + " is too small");
+        if (fieldValue > rangeValidator.max())
+          throw new RuntimeException(field.getName() + " is too large");
+      }
+    }
+  }
+}
 ```
 
 # Practice tasks
