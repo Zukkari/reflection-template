@@ -147,14 +147,23 @@ class Validator {
 }
 ```
 
+# When to use reflection
+
+In most cases reflection is not needed.
+Using interfaces is more readable, better maintainable and has better performance.
+Use reflection when using interfaces is not possible or not practical.
+Usually reflection is used when writing libraries that other people from other projects will later use.
+The following tasks are good example use cases for using reflection.
+
 # Practice tasks
 
 ## QueryGenerator
 
 Add the missing functionality in `app.db.QueryGenerator` so that the tests in `QueryGeneratorTest` pass.
 
-The `QueryGenerator` class should help with inserting Java objects into SQL databases.
-The `generateInsertStatement` method takes an arbitary object as a parameter and generates a suitable SQL insert statement for it.
+The `QueryGenerator` class works similar to how the Hibernate ORM library works.
+The `QueryGenerator` should help with inserting Java objects into SQL databases.
+Its `generateInsertStatement` method takes an arbitary object as a parameter and generates a suitable SQL insert statement for it.
 
 Example:
 ```
