@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 /**
  * Denotes a method that must be executed after each test is finished.
  * <p>
- * The teardown methods are searched from the provided class, including all its superclasses.
  * If a Teardown method fails, then the entire test suite is aborted with an exception.
  */
 @Target(ElementType.METHOD)

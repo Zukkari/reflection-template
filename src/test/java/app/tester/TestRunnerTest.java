@@ -1,8 +1,10 @@
 package app.tester;
 
-import app.tester.samples.ExceptionSuite;
-import app.tester.samples.InheritanceSuite;
+import app.tester.samples.DurationSuite;
+import app.tester.samples.ExceptionResultsSuite;
 import app.tester.samples.SetupSuite;
+import app.tester.samples.SimpleResultsSuite;
+import app.tester.samples.SimpleSuite;
 import app.tester.samples.TeardownSuite;
 import org.junit.Test;
 
@@ -17,54 +19,54 @@ import static org.junit.Assert.assertTrue;
 public class TestRunnerTest {
 
   @Test
-  public void callsAllTestMethodsOnceAndSkipsNonTests() throws Exception {
-    InheritanceSuite suite = new InheritanceSuite();
+  public void callsOnlyTestMethods() throws Exception {
+    SimpleSuite suite = new SimpleSuite();
     new TestRunner().runTests(suite);
-    assertEquals("testFirst called", 1, suite.testFirstCount);
-    assertEquals("testSecond called", 1, suite.testSecondCount);
-    assertEquals("testThird called", 1, suite.testThirdCount);
+    assertEquals("testFirst called", 1, suite.testCount);
     assertEquals("nonTest not called", 0, suite.nonTestCount);
-    assertEquals("nonTestSuper not called", 0, suite.nonTestSuperCount);
-    assertEquals("nonTestSuperSuper not called", 0, suite.nonTestSuperSuperCount);
+    assertEquals("nonTestPrivate not called", 0, suite.nonTestPrivateCount);
   }
 
   @Test
-  public void reportsCorrectResults() throws Exception {
-    ExceptionSuite suite = new ExceptionSuite();
+  public void reportsCorrectSimpleResults() throws Exception {
+    SimpleResultsSuite suite = new SimpleResultsSuite();
     List<TestResult> results = new TestRunner().runTests(suite);
-    assertEquals("test results count", 5, results.size());
-    assertPassed(results, "testNoThrow");
+    assertPassed(results, "passingTest");
+    assertFailed(results, "failingWithRETest");
+    assertFailed(results, "failingWithIOETest");
+  }
+
+  @Test
+  public void reportsCorrectExceptionResults() throws Exception {
+    ExceptionResultsSuite suite = new ExceptionResultsSuite();
+    List<TestResult> results = new TestRunner().runTests(suite);
     assertPassed(results, "testThrowExpectedIAE");
-    assertFailed(results, "testExpectedButThrowsDifferent");
-    assertFailed(results, "testExpectedButNoThrow");
-    assertFailed(results, "testThrowUnexpectedIAE");
+    assertFailed(results, "testExpectedIAEButThrowsNPE");
+    assertFailed(results, "testExpectedIAEButNoThrow");
   }
 
   @Test
   public void reportsCorrectDurations() throws Exception {
-    ExceptionSuite suite = new ExceptionSuite();
+    DurationSuite suite = new DurationSuite();
     List<TestResult> results = new TestRunner().runTests(suite);
-    assertEquals("test results count", 5, results.size());
-    assertDuration(results, "testNoThrow", ExceptionSuite.SLEEP_NOTHROW);
-    assertDuration(results, "testThrowExpectedIAE", ExceptionSuite.SLEEP_THROW_EXPECTED);
-    assertDuration(results, "testExpectedButThrowsDifferent", ExceptionSuite.SLEEP_THROW_UNEXPECTED);
-    assertDuration(results, "testExpectedButNoThrow", ExceptionSuite.SLEEP_NOTHROW);
-    assertDuration(results, "testThrowUnexpectedIAE", ExceptionSuite.SLEEP_THROW_UNEXPECTED);
+    assertDuration(results, "testPassing", suite.durationPassing);
+    assertDuration(results, "testPassingWithException", suite.durationPassingExceptionally);
+    assertDuration(results, "testFailing", suite.durationFailing);
   }
 
   @Test
-  public void findsSetupMethodsFromSuperclass() throws Exception {
+  public void callsSetupForEachTestMethod() throws Exception {
     SetupSuite suite = new SetupSuite();
     new TestRunner().runTests(suite);
     assertEquals("all test methods called", 2, suite.testCycle);
     assertEquals("@Setup called before each test: before1", suite.testCycle, suite.before1);
     assertEquals("@Setup called before each test: before2", suite.testCycle, suite.before2);
     if (suite.failure != null)
-      throw suite.failure;
+      throw new ExecutionException(suite.failure);
   }
 
   @Test
-  public void findsTeardownMethodsFromSuperclass() throws Exception {
+  public void callsTeardownForEachTestMethod() throws Exception {
     TeardownSuite suite = new TeardownSuite();
     new TestRunner().runTests(suite);
     assertEquals("all test methods called", 2, suite.testCycle);
