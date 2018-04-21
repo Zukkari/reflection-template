@@ -7,7 +7,6 @@ import app.db.samples.PrivateFields;
 import app.db.samples.PrivateInheritedFields;
 import app.db.samples.PublicFields;
 import app.db.samples.PublicInheritedFields;
-import app.db.samples.PublicStaticMixed;
 import app.db.samples.SuperTableEntity;
 import app.db.samples.TableEntity;
 import app.db.util.ParsedQuery;
@@ -54,15 +53,6 @@ public class QueryGeneratorTest {
     assertContains(q, "field1", "field1value");
     assertContains(q, "field2", 2);
     assertContains(q, "field3", Instant.EPOCH);
-  }
-
-  @Test
-  public void skipsGeneratingColumnsForStaticFields() throws Exception {
-    ParsedQuery q = generateAndParse(new PublicStaticMixed());
-    assertEquals("table name", PublicStaticMixed.class.getSimpleName(), q.getTable());
-    assertEquals("column count", 2, q.getColumns().size());
-    assertContains(q, "field1", "field1value");
-    assertContains(q, "field3", "field3value");
   }
 
   @Test
