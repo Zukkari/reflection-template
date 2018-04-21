@@ -149,7 +149,84 @@ class Validator {
 
 # Practice tasks
 
-Implement the missing functionality.
+## QueryGenerator
 
- * change app.db.QueryGenerator so that tests in QueryGeneratorTest pass
- * change app.tester.TestRunner so that tests in TestRunnerTest pass
+Add the missing functionality in `app.db.QueryGenerator` so that the tests in `QueryGeneratorTest` pass.
+
+The `QueryGenerator` class should help with inserting Java objects into SQL databases.
+The `generateInsertStatement` method takes an arbitary object as a parameter and generates a suitable SQL insert statement for it.
+
+Example:
+```
+class Customer {
+
+  private String name;
+  private String phoneNumber;
+
+  Customer(String name, String phoneNumber) {
+    this.name = name;
+    this.phoneNumber = phoneNumber;
+  }
+}
+
+public class Example {
+  public static void main(String[] args) throws Exception {
+    Customer bob = new Customer("Bob", "+372 123 4567");
+    Query query = new QueryGenerator().generateInsertStatement(bob);
+    System.out.println(query.getQuery());
+    // INSERT INTO Customer (name, phoneNumber) VALUES (?, ?);
+    System.out.println(query.getParameters());
+    // ["Bob", "+372 123 4567"]
+  }
+}
+```
+
+The `QueryGenerator` doesn't need to insert anything into an actual database.
+It just needs to generate the query string and find the parameter values.
+
+The `QueryGenerator` uses the object's class name as the table name and the object's field names as the database column names.
+The placeholder value `?` is added for each column.
+Finally, it also gets the object's field values and stores them as query parameter values.
+
+## TestRunner
+
+Add the missing functionality in `app.tester.TestRunner` so that the tests in `TestRunnerTest` pass.
+
+The `TestRunner` class should work similar to how JUnit tests work.
+An object containing some test methods (a test suite) is passed to the `TestRunner`.
+It will inspect the object, find all the methods marked with the `@TestMethod` annotation and run them.
+When a test method throws an exception, then the test is marked as failed.
+Otherwise the test is marked as passed.
+
+Example:
+
+```
+class MyTestSuite {
+
+  @TestMethod
+  public void testOnePlusOneIsTwo() {
+    int sum = 1 + 1;
+    if (sum != 2)
+      throw new RuntimeException("test failed!");
+  }
+
+  @TestMethod
+  public void successIsEightLetters() {
+    int length = "success".length();
+    if (length != 8)
+      throw new RuntimeException("test failed!");
+  }
+}
+
+public class Example {
+  public static void main(String[] args) throws Exception {
+    MyTestSuite suite = new MyTestSuite();
+    List<TestResult> results = new TestRunner().runTests(suite);
+    for (TestResult result : results) {
+      System.out.println(result.getTestName() + result.isPassed());
+    }
+    // testOnePlusOneIsTwo true
+    // successIsEightLetters false
+  }
+}
+```

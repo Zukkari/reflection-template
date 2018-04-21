@@ -5,25 +5,29 @@ public class QueryGenerator {
   /**
    * Generates a parametric SQL insert statement based on the provided object.
    * <p>
-   * The table name must be the unqualified (without package) class name of the provided object or
-   * the value provided by the {@link Table} annotation if it's present (preferred). The Table
-   * annotations on the entity's superclasses are ignored.
+   * The table name must be the unqualified (without package) class name of
+   * the provided object or the value provided by the {@link Table} annotation
+   * if it's present (preferred).
    * <p>
-   * The inserted column names must match the field names of the entity class or
-   * the column names as specified by the {@link Column} annotations on the
-   * fields (preferred). The resulting insert statement contains all non-static
-   * fields in the entity's class and its superclasses. The VALUES part must contain
-   * a matching number of placeholders for the query parameters. The returned query
-   * parameters must be in the same order as they appear in the statement.
+   * The column names must match the field names of the entity class or
+   * the names as specified by the {@link Column} annotations on the
+   * fields (preferred).
    * <p>
-   * Example result: query <code>"INSERT INTO Student (name, grade) VALUES (?, ?);"</code> with
-   * parameters list <code>["John", 4.3]</code>
+   * The VALUES part must contain a matching number of placeholders for the
+   * query parameters. The returned {@link Query} object must also contain the actual
+   * values to be inserted, based on the object's fields' values.
    *
-   * @return a valid parametric SQL insert statement and its parameters
+   * @return a {@link Query} object containing a valid parametric SQL insert
+   * statement and its parameter values
    */
   public Query generateInsertStatement(Object entity) throws Exception {
-    // use reflection to get the fields, field values and field annotations
+    // TODO generate the SQL statement and find the parameter values
+    // 1) use the entity's unqualified class name for table name
+    // 2) find all fields in the entity object
+    // 2.1) add a column name for each field
+    // 2.2) add a value placeholder for each field
+    // 2.3) store the field's value (query parameter value)
     // run the tests to see what's missing
-    return null; // TODO implement
+    return null;
   }
 }

@@ -18,8 +18,12 @@ public class TestRunner {
    * @return a list of {@link TestResult} that contains a result for each test method.
    */
   public List<TestResult> runTests(Object testSuite) throws Exception {
-    // use reflection to find methods and annotations from testSuite
-    // run the methods using reflection
-    return null; // TODO implement
+    // TODO run the tests in the suite and store the results
+    // 1) find all the methods marked with @TestMethod
+    // 2) run the methods one by one
+    // 3) for each test, store if it passed and the time spent to run the test
+    //    hint: use System.currentTimeMillis() and try-catch-finally
+    // run the tests to see what's missing
+    return null;
   }
 }
