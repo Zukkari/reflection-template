@@ -1,5 +1,9 @@
 package app.db;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
 public class QueryGenerator {
 
   /**
@@ -21,13 +25,36 @@ public class QueryGenerator {
    * statement and its parameter values
    */
   public Query generateInsertStatement(Object entity) throws Exception {
-    // TODO generate the SQL statement and find the parameter values
-    // 1) use the entity's unqualified class name for table name
-    // 2) find all fields in the entity object
-    // 2.1) add a column name for each field
-    // 2.2) add a value placeholder for each field
-    // 2.3) store the field's value (query parameter value)
-    // run the tests to see what's missing
-    return null;
+    String tableName = tableName(entity);
+    List<String> columnNames = new ArrayList<>();
+    List<String> placeholders = new ArrayList<>();
+    List<Object> parameterValues = new ArrayList<>();
+    for (Field field : entity.getClass().getDeclaredFields()) {
+      field.setAccessible(true);
+      columnNames.add(columnName(field));
+      placeholders.add("?");
+      parameterValues.add(field.get(entity));
+    }
+
+    String sql = String.format(
+        "INSERT INTO %s (%s) VALUES (%s);",
+        tableName,
+        String.join(", ", columnNames),
+        String.join(", ", placeholders));
+    return new Query(sql, parameterValues);
+  }
+
+  private String tableName(Object entity) {
+    Table table = entity.getClass().getAnnotation(Table.class);
+    if (table != null)
+      return table.value();
+    return entity.getClass().getSimpleName();
+  }
+
+  private String columnName(Field field) {
+    Column column = field.getAnnotation(Column.class);
+    if (column != null)
+      return column.value();
+    return field.getName();
   }
 }

@@ -1,5 +1,8 @@
 package app.tester;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TestRunner {
@@ -18,12 +21,45 @@ public class TestRunner {
    * @return a list of {@link TestResult} that contains a result for each test method.
    */
   public List<TestResult> runTests(Object testSuite) throws Exception {
-    // TODO run the tests in the suite and store the results
-    // 1) find all the methods marked with @TestMethod
-    // 2) run the methods one by one
-    // 3) for each test, store if it passed and the time spent to run the test
-    //    hint: use System.currentTimeMillis() and try-catch-finally
-    // run the tests to see what's missing
-    return null;
+    List<Method> setups = new ArrayList<>();
+    List<Method> tests = new ArrayList<>();
+    List<Method> teardowns = new ArrayList<>();
+
+    for (Method method : testSuite.getClass().getDeclaredMethods()) {
+      if (method.getAnnotation(Setup.class) != null)
+        setups.add(method);
+      if (method.getAnnotation(TestMethod.class) != null)
+        tests.add(method);
+      if (method.getAnnotation(Teardown.class) != null)
+        teardowns.add(method);
+    }
+
+    List<TestResult> results = new ArrayList<>();
+    for (Method test : tests) {
+      for (Method setup : setups)
+        setup.invoke(testSuite);
+      long start = System.currentTimeMillis();
+      boolean passed = runTest(testSuite, test);
+      long end = System.currentTimeMillis();
+      for (Method teardown : teardowns)
+        teardown.invoke(testSuite);
+      results.add(new TestResult(test.getName(), passed, end - start));
+    }
+    return results;
+  }
+
+  private boolean runTest(Object testSuite, Method test) throws IllegalAccessException {
+    ExpectedException expected = test.getAnnotation(ExpectedException.class);
+    try {
+      test.invoke(testSuite);
+      if (expected != null)
+        return false; // expected some exception, but test didn't throw
+    } catch (InvocationTargetException ite) {
+      if (expected == null)
+        return false; // didn't expect any exception
+      if (!expected.value().equals(ite.getTargetException().getClass()))
+        return false; // didn't expect that exception
+    }
+    return true;
   }
 }
