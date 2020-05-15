@@ -155,6 +155,131 @@ Use reflection when using interfaces is not possible or not practical.
 Usually reflection is used when writing libraries that other people from other projects will later use.
 The following tasks are good example use cases for using reflection.
 
+# Alternatives to reflection
+
+As many of you might have noticed, handling all the exceptions when operating with reflection might be cumbersome.
+Moreover, Oracle plans to get rid of reflection eventually in favor of other tools.
+With changes from Java 9 (introduction of modules), reflective operations might output a warning which most of you have 
+already seen:
+
+```text
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by io.netty.util.internal.ReflectionUtil (file:/home/azureuser/server-0.28.0-SNAPSHOT.jar) to constructor java.nio.DirectByteBuffer(long,int)
+WARNING: Please consider reporting this to the maintainers of io.netty.util.internal.ReflectionUtil
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+```
+
+In short, this means that reflective access will be forbidden in the future, so authors of the libraries that
+use reflection should rework their libraries to get rid of reflection.
+
+But as we have seen, reflection provides some ways to change objects behaviour at runtime of the application, 
+so there should be an alternative for that, right?
+
+This is the part where method handles and variable handles come in.
+
+## Method handles
+
+In Java 7, class `MethodHandles` was introduced to the Java API.
+
+From the documentation, the purpose of this class is to:
+
+- Lookup methods which help create method handles for methods and fields.
+- Combinator methods, which combine or transform pre-existing method handles into new ones.
+- Other factory methods to create method handles that emulate other common JVM operations or control flow patterns.
+
+In short, this class provides alternative ways to manipulate methods at runtime.
+Here is an example how to call a method at the runtime, without the use of the `java.lang.reflect` package:
+
+```java
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+
+class MethodHandleTest {
+    public static void main(String[] args) throws Throwable {
+        var testClass = new TestClass();
+
+        // Create a lookup object were we will look for the method to invoke
+        final var lookup = MethodHandles.lookup();
+
+        // Create a handle that we will use to invoke the method on a object
+        final var handle = lookup.findVirtual(
+                TestClass.class, // Class to search for the method
+                "sayHello", // Name of the method to look up
+                MethodType.methodType(void.class) // Return type of the method
+        );
+
+        // Invoke the handle on a object to execute the method on the target object
+        handle.invokeExact(testClass);
+    }
+}
+
+class TestClass {
+    public void sayHello() {
+        sayHello("world");
+    }
+
+    private void sayHello(String name) {
+        System.out.println("Hello, " + name + "!");
+    }
+}
+```
+
+Yeah, this is cool and all, but what about private methods with parameters? 
+Well, method handles can also do that:
+
+```java
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+
+class MethodHandleTest {
+    public static void main(String[] args) throws Throwable {
+        var testClass = new TestClass();
+
+        // Create a lookup object that can lookup private members in a specific class
+        final var lookup = MethodHandles.privateLookupIn(TestClass.class, MethodHandles.lookup());
+
+        // Create a handle that we will use to invoke the method on a object
+        final var handle = lookup.findVirtual(
+                TestClass.class, // Class to search for the method
+                "sayHello", // Name of the method to look up
+                MethodType.methodType(void.class, String.class) // Return type of the method (first parameters is return type, then types of the method arguments)
+        );
+
+        // Invoke the handle on a object to execute the method on the target object
+        handle.invokeExact(testClass, "MethodHandles");
+    }
+}
+
+class TestClass {
+    public void sayHello() {
+        sayHello("world");
+    }
+
+    private void sayHello(String name) {
+        System.out.println("Hello, " + name + "!");
+    }
+}
+```
+
+The only difference here is that we have to create another lookup object, which is able to
+lookup private members in a specific class.
+Other steps are pretty straightforward and intuitive.
+
+So method handles are a neat feature which allows you to handle methods at runtime.
+Why is it better than reflection?
+Well, there are several advantages that include but are not limited to:
+
+- Type safety
+- Cleaner API (fewer exceptions to handle)
+- Method handles can be cached in order to improve performance
+
+So method handles allow you to do amazing things during the runtime.
+Here is an [article](https://dzone.com/articles/hacking-lambda-expressions-in-java) which covers this topic in depth
+(but beware that this article can be fully only understood by the mightiest Java wizards).
+
+## Var handles
+
 # Practice tasks
 
 ## QueryGenerator
