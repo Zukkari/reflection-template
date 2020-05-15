@@ -280,6 +280,53 @@ Here is an [article](https://dzone.com/articles/hacking-lambda-expressions-in-ja
 
 ## Var handles
 
+Previously we investigated method handles.
+But what about variables?
+Reflection also allows us to access private variables and set their values.
+
+Well, in Java 12 variable handles were introduced, which allow us to manipulate fields of the objects.
+Since we are using Java 11, then there is no way to modify private fields without using reflection.
+
+However, lets look at an example how we can modify a private field of a class using variable handles:
+
+```java
+import java.lang.invoke.MethodHandles;
+
+class MethodHandleTest {
+    public static void main(String[] args) throws Throwable {
+        var testClass = new TestClass();
+        testClass.printState();
+        
+        final var varHandle = MethodHandles.privateLookupIn(TestClass.class, MethodHandles.lookup())
+                .findVarHandle(
+                        TestClass.class, // Class where to find variable in
+                        "internalState", // Name of the variable to look for
+                        String.class // Type of the variable
+                );
+
+        // Update the value of the variable
+        varHandle.set(testClass, "newInternalState");
+
+        testClass.printState();
+    }
+}
+
+class TestClass {
+    private String internalState = "internalState";
+
+    public void printState() {
+        System.out.println(internalState);
+    }
+}
+```
+
+As you might have noticed, the API is quite similar to the method handles API.
+There is, however, a "major" disadvantage of using var handles over reflection.
+Using variable handles, there is no way update a final field of a class.
+But in most cases, this should be considered as an advantage, because immutable state should stay immutable.
+
+In practice tasks, it is up to you to decide which approach you would like to use when solving the tasks.
+
 # Practice tasks
 
 ## QueryGenerator
