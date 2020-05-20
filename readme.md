@@ -55,7 +55,7 @@ There are three main options for getting the Class object:
 ## Examples
 
 ### Listing all methods in a class
-```
+```java
 // list all methods in class Test
 for (Method method : Test.class.getDeclaredMethods()) {
   System.out.println(method.getName());
@@ -63,7 +63,7 @@ for (Method method : Test.class.getDeclaredMethods()) {
 ```
 
 ### Setting a public field of an object
-```
+```java
 // create a Test object
 // set the value of its field someString to 'newValue'
 Test test = new Test();
@@ -71,7 +71,7 @@ Test.class.getDeclaredField("someString").set(test, "newValue");
 ```
 
 ### Invoking a method
-```
+```java
 class Sample {
   public String hello() {
     return "Hello world!";
@@ -109,7 +109,7 @@ However, a program can inspect classes at runtime to find the annotations, read 
 
 An annotation declaration is similar to that of an interface.
 
-```
+```java
 @Retention(RetentionPolicy.RUNTIME)
 @interface Range {
   double min();
@@ -119,7 +119,7 @@ An annotation declaration is similar to that of an interface.
 
 The annotation can then be added to classes/fields/methods etc.
 
-```
+```java
 class Ticket {
 
   @Range(min = 0.99, max = 15.99)
@@ -129,7 +129,7 @@ class Ticket {
 
 A running program can inspect any class for annotations and make decisions based on them.
 
-```
+```java
 class Validator {
 
   void validate(Object obj) throws Exception {
@@ -292,7 +292,7 @@ However, lets look at an example how we can modify a private field of a class us
 ```java
 import java.lang.invoke.MethodHandles;
 
-class MethodHandleTest {
+class VarHandleTest {
     public static void main(String[] args) throws Throwable {
         var testClass = new TestClass();
         testClass.printState();
@@ -338,7 +338,7 @@ The `QueryGenerator` should help with inserting Java objects into SQL databases.
 Its `generateInsertStatement` method takes an arbitary object as a parameter and generates a suitable SQL insert statement for it.
 
 Example:
-```
+```java
 class Customer {
 
   private String name;
@@ -381,7 +381,7 @@ Otherwise the test is marked as passed.
 
 Example:
 
-```
+```java
 class MyTestSuite {
 
   @TestMethod
